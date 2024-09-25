@@ -56,6 +56,7 @@ export class MintCommand extends BoardcastCommand {
     try {
       if (options.id) {
         const address = this.walletService.getAddress();
+	console.log(`address: ${address}`);
         const token = await findTokenMetadataById(
           this.configService,
           options.id,
@@ -85,7 +86,7 @@ export class MintCommand extends BoardcastCommand {
         const MAX_RETRY_COUNT = 10;
 
         for (let index = 0; index < MAX_RETRY_COUNT; index++) {
-          await this.merge(token, address);
+          // await this.merge(token, address);
           const feeRate = await this.getFeeRate();
           const feeUtxos = await this.getFeeUTXOs(address);
           if (feeUtxos.length === 0) {

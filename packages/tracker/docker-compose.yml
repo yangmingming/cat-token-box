@@ -9,9 +9,11 @@ services:
       POSTGRES_DB: $DATABASE_DB
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - ./docker/pgdata:/var/lib/postgresql/data
+    networks:
+      - my_network
   bitcoind:
     image: fractalbitcoin/fractal:v0.2.1
     restart: always
@@ -20,10 +22,10 @@ services:
     healthcheck:
       test: ["CMD", "bitcoin-cli", "-datadir=/data/", "getblockchaininfo"]
     ports:
-      - "8330:8330"
-      - "8331:8331"
-      - "8332:8332"
-      - "8333:8333"
+      - "127.0.0.1:8330:8330"
+      - "127.0.0.1:8331:8331"
+      - "127.0.0.1:8332:8332"
+      - "127.0.0.1:8333:8333"
     deploy:
       resources:
         limits:
@@ -38,3 +40,18 @@ services:
         labels: "env,filebeat,name"
         max-size: "1g"
         max-file: "3"
+    networks:
+      - my_network
+  tracker:
+    image: tracker:latest
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_HOST: postgres  # 使用服务名称
+      RPC_HOST: bitcoind
+    ports:
+      - "127.0.0.1:3000:3000"  # 仅对本机开放
+    networks:
+      - my_network
+networks:
+  my_network:
